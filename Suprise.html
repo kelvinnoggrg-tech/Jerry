@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>💖 Playful Surprise 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Background GIF */
+body {
+    background: url('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHNuaW00N25qM2FkMm5pdWd3OWNzdmVxaTAxYjE2ZGswem42ZnV3ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a692I53FP9XtvM4YCc/giphy.gif') 
+                center center / cover no-repeat fixed;
+    text-align: center;
+    color: white;
+    position: relative;
+}
+
+/* Question styling */
+h1 {
+    margin-top: 50px;
+    font-family: 'Pacifico', cursive;
+    font-size: 36px;
+    text-shadow: 2px 2px 10px #ff4d6d;
+    position: relative;
+    z-index: 20; /* above GIFs */
+}
+
+/* Buttons */
+button {
+    padding: 25px 40px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    transition: all 0.3s;
+    position: absolute;
+    z-index: 20;
+}
+
+.yesBtn {
+    background-color: #ff4d6d;
+    color: white;
+}
+
+.noBtn {
+    background-color: white;
+    color: #ff4d6d;
+}
+
+/* Sad GIFs scattered */
+.sadGif {
+    position: absolute;
+    width: 150px;
+    z-index: 10;
+    pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="question">💘 Do you want to spend special time with me? 💘</h1>
+
+<!-- YES Button -->
+<button class="yesBtn" id="yesBtn" style="top:60%; left:45%; width:200px; height:60px;">YES 💖</button>
+
+<!-- NO buttons -->
+<button class="noBtn" style="top:60%; left:20%;">No 😅</button>
+<button class="noBtn" style="top:65%; left:50%;">Maybe No 🙈</button>
+<button class="noBtn" style="top:55%; left:75%;">Not Sure 😜</button>
+
+<!-- Container for sad GIFs -->
+<div id="sadGifsContainer"></div>
+
+<script>
+// Sad GIFs links
+const sadGifsLinks = [
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjVqb2w4enNqdmMweWh6Z2x4bmc1bWJ4d3VkZXJqY3B0MGllYzAyZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/5M7WUL95CE8LvBIj5o/giphy.gif",
+  "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnBkYWNyZHhiOXhwYngwdXRmOGExcGU5Mmh3dTJvdmtuanAzNXU3dyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/IFEyABqHRyg3CEMAlY/giphy.gif",
+  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExOW85bHBkdmN3bzRvcXAwMXpuMGNpMHc4bWxmZjJiYzBianppdzRlNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9S32TZsgxKekmn9qUI/giphy.gif",
+  "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExcGY1YjR4NGoyZDl6ZnM4NmJvOGoyNmlsZzV0MXg2bWZvdmNzaXpzNCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RjMjK5rREKrArLYqWc/giphy.gif"
+];
+
+let yesWidth = 200;
+let yesHeight = 60;
+
+const yesBtn = document.getElementById("yesBtn");
+const sadContainer = document.getElementById("sadGifsContainer");
+
+// Scatter sad GIFs on background
+function scatterSadGifs() {
+    const numGifs = 8;
+    for(let i=0;i<numGifs;i++){
+        const gifDiv = document.createElement("div");
+        gifDiv.classList.add("sadGif");
+        gifDiv.style.width = "150px";
+        const link = sadGifsLinks[Math.floor(Math.random()*sadGifsLinks.length)];
+        gifDiv.innerHTML = `<iframe src="${link}" frameborder="0" allowfullscreen></iframe>`;
+        // Random position across screen
+        gifDiv.style.left = Math.random()*(window.innerWidth-150) + "px";
+        gifDiv.style.top = Math.random()*(window.innerHeight-150) + "px";
+        sadContainer.appendChild(gifDiv);
+    }
+}
+
+// NO button dodge logic
+const noButtons = document.querySelectorAll(".noBtn");
+let hoverCounts = {};
+noButtons.forEach(btn => {
+    hoverCounts[btn.innerText] = 0;
+
+    btn.addEventListener("mouseenter", () => {
+        if(hoverCounts[btn.innerText] < 2){
+            let topMove = (Math.random()*40)-20;
+            let leftMove = (Math.random()*40)-20;
+            btn.style.top = `calc(${btn.offsetTop}px + ${topMove}px)`;
+            btn.style.left = `calc(${btn.offsetLeft}px + ${leftMove}px)`;
+            hoverCounts[btn.innerText]++;
+        }
+    });
+
+    btn.addEventListener("click", () => {
+        if(hoverCounts[btn.innerText] < 2) return;
+
+        // YES grows exponentially
+        yesWidth *= 2;
+        yesHeight *= 2;
+
+        yesBtn.style.width = yesWidth + "px";
+        yesBtn.style.height = yesHeight + "px";
+
+        // If bigger than window, cover whole screen
+        if(yesWidth >= window.innerWidth) yesBtn.style.width = "100vw";
+        if(yesHeight >= window.innerHeight) yesBtn.style.height = "100vh";
+
+        yesBtn.style.fontSize = (24*(yesWidth/200)) + "px";
+
+        scatterSadGifs();
+    });
+});
+
+// Questions
+let questionIndex = 0;
+const questions = [
+    "💘 Do you want to spend special time with me? 💘",
+    "📸 Will you send me one cute photo of you? 🥺💖",
+    "📞 And… will you video call me later? 🥰"
+];
+
+yesBtn.addEventListener("click", ()=>{
+    questionIndex++;
+    if(questionIndex >= questions.length){
+        document.body.innerHTML = `<h1 style="margin-top:200px;">🎉 YAYYYY!!! 🎉<br><br>You just made me the happiest person 💖<br><br>I can't wait 🥰</h1>`;
+        return;
+    }
+    document.getElementById("question").innerText = questions[questionIndex];
+
+    // Remove previous sad GIFs
+    sadContainer.innerHTML = "";
+
+    // Reset YES button size
+    yesWidth = 200;
+    yesHeight = 60;
+    yesBtn.style.width = yesWidth + "px";
+    yesBtn.style.height = yesHeight + "px";
+    yesBtn.style.fontSize = "24px";
+});
+</script>
+
+</body>
+</html>
